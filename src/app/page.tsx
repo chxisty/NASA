@@ -46,6 +46,9 @@ export default function Home() {
   // Data states
   const [summary, setSummary] = useState<FiresSummaryResponse | null>(null);
   const [harmonizationSummary, setHarmonizationSummary] = useState<HarmonizationSummaryResponse | null>(null);
+  const [mlAnomaliesData, setMlAnomaliesData] = useState<MLAnomaliesResponse | null>(null);
+  const [mlClustersData, setMlClustersData] = useState<MLClustersResponse | null>(null);
+  const [mlSummaryData, setMlSummaryData] = useState<MLSummaryResponse | null>(null);
   const [observations, setObservations] = useState<NormalizedFireObservation[]>([]);
   const [anomalies, setAnomalies] = useState<NormalizedFireObservation[]>([]);
   const [anomalySummary, setAnomalySummary] = useState<AnomalySummary | null>(null);
@@ -71,16 +74,28 @@ export default function Home() {
     try {
       const countryCode = selectedScope === 'IND' ? 'IND' : 'GLOBAL';
 
-      // Parallel fetch across official NASA FIRMS & Harmonization endpoints
-      const [healthData, summaryData, firesData, sourcesData, trendsData, harmData] =
-        await Promise.all([
-          fetchHealth(),
-          fetchFiresSummary(countryCode, selectedSource, selectedDays),
-          fetchFires(countryCode, selectedSource, selectedDays),
-          fetchSources(),
-          fetchTrends(7),
-          fetchHarmonizationSummary(countryCode, selectedDays)
-        ]);
+      // Parallel fetch across official NASA FIRMS, Harmonization & ML endpoints
+      const [
+        healthData,
+        summaryData,
+        firesData,
+        sourcesData,
+        trendsData,
+        harmData,
+        anomaliesRes,
+        clustersRes,
+        mlSummaryRes
+      ] = await Promise.all([
+        fetchHealth(),
+        fetchFiresSummary(countryCode, selectedSource, selectedDays),
+        fetchFires(countryCode, selectedSource, selectedDays),
+        fetchSources(),
+        fetchTrends(7),
+        fetchHarmonizationSummary(countryCode, selectedDays),
+        fetchMLAnomalies(countryCode, selectedSource, selectedDays),
+        fetchMLClusters(countryCode, selectedSource, selectedDays),
+        fetchMLSummary(countryCode, selectedSource, selectedDays)
+      ]);
 
       if (healthData) {
         setNasaConnected(healthData.nasa_api_configured);
@@ -90,17 +105,20 @@ export default function Home() {
       setSummary(summaryData);
       setHarmonizationSummary(harmData);
       setObservations(firesData.data);
+      setMlAnomaliesData(anomaliesRes);
+      setMlClustersData(clustersRes);
+      setMlSummaryData(mlSummaryRes);
 
       // Extract anomalies (FRP > 100 MW or brightness > 360 K)
       const flaggedAnomalies = firesData.data.filter((o) => o.is_anomaly);
       setAnomalies(flaggedAnomalies);
 
       setAnomalySummary({
-        total_anomalies_detected: flaggedAnomalies.length,
+        total_anomalies_detected: anomaliesRes?.anomalous_grids_count ?? flaggedAnomalies.length,
         anomaly_ratio: firesData.data.length ? flaggedAnomalies.length / firesData.data.length : 0,
         high_frp_outliers: flaggedAnomalies.filter((a) => (a.frp || 0) > 100).length,
-        dense_cluster_anomalies: Math.max(0, flaggedAnomalies.length - 1),
-        model_used: 'Isolation Forest (Scikit-Learn) + Thermal Thresholding',
+        dense_cluster_anomalies: clustersRes?.total_clusters ?? Math.max(0, flaggedAnomalies.length - 1),
+        model_used: 'Isolation Forest (Scikit-Learn) + K-Means Spatial',
         detection_timestamp: new Date().toISOString()
       });
 
@@ -200,8 +218,9 @@ export default function Home() {
 
           {currentSection === 'anomalies' && (
             <AnomalySection
-              anomalies={anomalies}
-              summary={anomalySummary}
+              anomaliesData={mlAnomaliesData}
+              clustersData={mlClustersData}
+              summaryData={mlSummaryData}
               isLoading={isLoading}
               onRefresh={handleRefresh}
             />
