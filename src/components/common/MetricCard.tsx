@@ -100,3 +100,4 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     </div>
   );
 };
+

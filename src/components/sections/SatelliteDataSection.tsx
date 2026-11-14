@@ -152,3 +152,4 @@ export const SatelliteDataSection: React.FC<SatelliteDataSectionProps> = ({
     </div>
   );
 };
+

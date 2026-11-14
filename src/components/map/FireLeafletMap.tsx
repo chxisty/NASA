@@ -120,3 +120,4 @@ export const FireLeafletMap: React.FC<FireLeafletMapProps> = ({
   );
 };
 export default FireLeafletMap;
+

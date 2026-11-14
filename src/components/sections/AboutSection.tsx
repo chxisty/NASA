@@ -145,3 +145,4 @@ export const AboutSection: React.FC = () => {
     </div>
   );
 };
+

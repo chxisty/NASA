@@ -281,3 +281,4 @@ export const LiveMapSection: React.FC<LiveMapSectionProps> = ({
     </div>
   );
 };
+

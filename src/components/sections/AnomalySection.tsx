@@ -165,3 +165,4 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
     </div>
   );
 };
+
