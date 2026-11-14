@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { OverviewSection } from '@/components/sections/OverviewSection';
 import { LiveMapSection } from '@/components/sections/LiveMapSection';
+import { HarmonizationSection } from '@/components/sections/HarmonizationSection';
 import { AnomalySection } from '@/components/sections/AnomalySection';
 import { HistoricalSection } from '@/components/sections/HistoricalSection';
 import { SatelliteDataSection } from '@/components/sections/SatelliteDataSection';
@@ -15,13 +16,15 @@ import {
   fetchFires,
   fetchFiresSummary,
   fetchSources,
-  fetchTrends
+  fetchTrends,
+  fetchHarmonizationSummary
 } from '@/services/api';
 
 import {
   NavigationSection,
   NormalizedFireObservation,
   FiresSummaryResponse,
+  HarmonizationSummaryResponse,
   AnomalySummary,
   TrendDataPoint,
   SatelliteSourceInfo
@@ -36,6 +39,7 @@ export default function Home() {
 
   // Data states
   const [summary, setSummary] = useState<FiresSummaryResponse | null>(null);
+  const [harmonizationSummary, setHarmonizationSummary] = useState<HarmonizationSummaryResponse | null>(null);
   const [observations, setObservations] = useState<NormalizedFireObservation[]>([]);
   const [anomalies, setAnomalies] = useState<NormalizedFireObservation[]>([]);
   const [anomalySummary, setAnomalySummary] = useState<AnomalySummary | null>(null);
@@ -49,7 +53,7 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load all data streams from FastAPI NASA endpoints
+  // Load all data streams from FastAPI NASA & Harmonization endpoints
   const loadDashboardData = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true);
@@ -61,14 +65,15 @@ export default function Home() {
     try {
       const countryCode = selectedScope === 'IND' ? 'IND' : 'GLOBAL';
 
-      // Parallel fetch across official NASA FIRMS endpoints
-      const [healthData, summaryData, firesData, sourcesData, trendsData] =
+      // Parallel fetch across official NASA FIRMS & Harmonization endpoints
+      const [healthData, summaryData, firesData, sourcesData, trendsData, harmData] =
         await Promise.all([
           fetchHealth(),
           fetchFiresSummary(countryCode, selectedSource, selectedDays),
           fetchFires(countryCode, selectedSource, selectedDays),
           fetchSources(),
-          fetchTrends(7)
+          fetchTrends(7),
+          fetchHarmonizationSummary(countryCode, selectedDays)
         ]);
 
       if (healthData) {
@@ -77,6 +82,7 @@ export default function Home() {
       }
 
       setSummary(summaryData);
+      setHarmonizationSummary(harmData);
       setObservations(firesData.data);
 
       // Extract anomalies (FRP > 100 MW or brightness > 360 K)
@@ -166,12 +172,21 @@ export default function Home() {
               onRefresh={handleRefresh}
               onViewMap={() => setCurrentSection('live-map')}
               onViewAnomalies={() => setCurrentSection('anomalies')}
+              onViewHarmonization={() => setCurrentSection('harmonization')}
             />
           )}
 
           {currentSection === 'live-map' && (
             <LiveMapSection
               observations={observations}
+              isLoading={isLoading}
+              onRefresh={handleRefresh}
+            />
+          )}
+
+          {currentSection === 'harmonization' && (
+            <HarmonizationSection
+              summary={harmonizationSummary}
               isLoading={isLoading}
               onRefresh={handleRefresh}
             />

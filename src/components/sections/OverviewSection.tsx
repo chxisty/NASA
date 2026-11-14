@@ -78,13 +78,21 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={onViewMap}
             className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors shadow-sm shadow-orange-500/20"
           >
             Open Live Map
           </button>
+          {onViewHarmonization && (
+            <button
+              onClick={onViewHarmonization}
+              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-orange-400 text-xs font-medium transition-colors border border-orange-500/30"
+            >
+              MODIS vs VIIRS Harmonization
+            </button>
+          )}
           <button
             onClick={onViewAnomalies}
             className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors border border-slate-700"
