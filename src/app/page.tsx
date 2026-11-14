@@ -1,69 +1,181 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { OverviewSection } from '@/components/sections/OverviewSection';
+import { LiveMapSection } from '@/components/sections/LiveMapSection';
+import { AnomalySection } from '@/components/sections/AnomalySection';
+import { HistoricalSection } from '@/components/sections/HistoricalSection';
+import { SatelliteDataSection } from '@/components/sections/SatelliteDataSection';
+import { AboutSection } from '@/components/sections/AboutSection';
+
+import {
+  fetchHealth,
+  fetchFireSummary,
+  fetchLiveFires,
+  fetchAnomalies,
+  fetchTrends,
+  fetchSatelliteStatus
+} from '@/services/api';
+
+import {
+  NavigationSection,
+  FireObservation,
+  FireSummaryStats,
+  AnomalySummary,
+  TrendDataPoint,
+  SatelliteInfo
+} from '@/types';
 
 export default function Home() {
+  const [currentSection, setCurrentSection] = useState<NavigationSection>('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedScope, setSelectedScope] = useState<'IND' | 'GLOBAL'>('IND');
+  const [selectedSensor, setSelectedSensor] = useState<'ALL' | 'MODIS' | 'VIIRS'>('ALL');
+
+  // Data states
+  const [summary, setSummary] = useState<FireSummaryStats | null>(null);
+  const [observations, setObservations] = useState<FireObservation[]>([]);
+  const [anomalies, setAnomalies] = useState<FireObservation[]>([]);
+  const [anomalySummary, setAnomalySummary] = useState<AnomalySummary | null>(null);
+  const [trends, setTrends] = useState<TrendDataPoint[]>([]);
+  const [satellites, setSatellites] = useState<SatelliteInfo[]>([]);
+  const [constellationName, setConstellationName] = useState<string>('NASA Earth Observing System (EOS)');
+
+  // Telemetry status
+  const [nasaConnected, setNasaConnected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load all data streams
+  const loadDashboardData = useCallback(async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    setError(null);
+
+    try {
+      const countryCode = selectedScope === 'IND' ? 'IND' : 'GLOBAL';
+
+      // Parallel fetch across endpoints
+      const [healthData, summaryData, firesData, anomalyData, trendsData, satData] =
+        await Promise.all([
+          fetchHealth(),
+          fetchFireSummary(countryCode),
+          fetchLiveFires(countryCode, selectedSensor),
+          fetchAnomalies(countryCode),
+          fetchTrends(countryCode, 7),
+          fetchSatelliteStatus()
+        ]);
+
+      if (healthData) {
+        setNasaConnected(healthData.nasa_api_configured);
+      }
+
+      setSummary(summaryData);
+      setObservations(firesData);
+      setAnomalies(anomalyData.anomalous_observations);
+      setAnomalySummary(anomalyData.summary);
+      setTrends(trendsData);
+      setSatellites(satData.satellites);
+      setConstellationName(satData.constellation);
+    } catch (err) {
+      console.error('Failed to load FirePulse telemetry:', err);
+      setError('Unable to load satellite observation telemetry. Check server connection.');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [selectedScope, selectedSensor]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const handleRefresh = () => {
+    loadDashboardData(true);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-[#0B1220] flex">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        currentSection={currentSection}
+        onSelectSection={(section) => setCurrentSection(section)}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+        {/* Top Header */}
+        <Header
+          currentSection={currentSection}
+          onOpenMobileMenu={() => setIsSidebarOpen(true)}
+          selectedScope={selectedScope}
+          onScopeChange={(scope) => setSelectedScope(scope)}
+          selectedSensor={selectedSensor}
+          onSensorChange={(sensor) => setSelectedSensor(sensor)}
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+          nasaConnected={nasaConnected}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+
+        {/* Dynamic Section Container */}
+        <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
+          {currentSection === 'overview' && (
+            <OverviewSection
+              summary={summary}
+              observations={observations}
+              isLoading={isLoading}
+              error={error}
+              onRefresh={handleRefresh}
+              onViewMap={() => setCurrentSection('live-map')}
+              onViewAnomalies={() => setCurrentSection('anomalies')}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          )}
+
+          {currentSection === 'live-map' && (
+            <LiveMapSection
+              observations={observations}
+              isLoading={isLoading}
+              onRefresh={handleRefresh}
+            />
+          )}
+
+          {currentSection === 'anomalies' && (
+            <AnomalySection
+              anomalies={anomalies}
+              summary={anomalySummary}
+              isLoading={isLoading}
+              onRefresh={handleRefresh}
+            />
+          )}
+
+          {currentSection === 'historical' && (
+            <HistoricalSection
+              trends={trends}
+              isLoading={isLoading}
+              onRefresh={handleRefresh}
+            />
+          )}
+
+          {currentSection === 'satellite' && (
+            <SatelliteDataSection
+              satellites={satellites}
+              constellationName={constellationName}
+              isLoading={isLoading}
+              onRefresh={handleRefresh}
+            />
+          )}
+
+          {currentSection === 'about' && <AboutSection />}
+        </main>
+      </div>
     </div>
   );
 }
