@@ -28,6 +28,10 @@ const sectionTitles: Record<NavigationSection, { title: string; subtitle: string
     title: 'Interactive Live Fire Map',
     subtitle: 'Geospatial visualization of active hotspots and radiative power clusters'
   },
+  harmonization: {
+    title: 'MODIS & VIIRS Data Harmonization',
+    subtitle: 'Cross-sensor resolution normalization, spatial de-duplication, and comparative FRP analytics'
+  },
   anomalies: {
     title: 'AI Anomaly Detection & Intensity Outliers',
     subtitle: 'Isolation Forest clustering of extreme FRP and unexpected thermal spikes'

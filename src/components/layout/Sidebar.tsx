@@ -5,6 +5,7 @@ import {
   Flame,
   LayoutDashboard,
   MapPin,
+  Scale,
   BrainCircuit,
   BarChart3,
   Satellite,
@@ -32,6 +33,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'live-map', label: 'Live Fire Map', icon: MapPin, badge: 'Live' },
+  { id: 'harmonization', label: 'Data Harmonization', icon: Scale, badge: 'Cross-Sensor' },
   { id: 'anomalies', label: 'AI Anomaly Detection', icon: BrainCircuit, badge: 'ML' },
   { id: 'historical', label: 'Historical Analysis', icon: BarChart3 },
   { id: 'satellite', label: 'Satellite Data', icon: Satellite },
