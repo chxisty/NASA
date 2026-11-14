@@ -25,6 +25,7 @@ interface OverviewSectionProps {
   onRefresh: () => void;
   onViewMap: () => void;
   onViewAnomalies: () => void;
+  onViewHarmonization?: () => void;
 }
 
 export const OverviewSection: React.FC<OverviewSectionProps> = ({
@@ -34,7 +35,8 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   error,
   onRefresh,
   onViewMap,
-  onViewAnomalies
+  onViewAnomalies,
+  onViewHarmonization
 }) => {
   if (isLoading) {
     return <LoadingState message="Aggregating satellite telemetry and KPI metrics..." />;
