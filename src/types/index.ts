@@ -1,11 +1,12 @@
 /**
  * FirePulse Unified Type Definitions
- * Frontend data contracts mirroring backend normalized NASA schemas.
+ * Frontend data contracts mirroring backend normalized NASA and Harmonization schemas.
  */
 
 export type NavigationSection = 
   | 'overview'
   | 'live-map'
+  | 'harmonization'
   | 'anomalies'
   | 'historical'
   | 'satellite'
@@ -45,6 +46,70 @@ export interface NormalizedFireObservation {
 }
 
 export type FireObservation = NormalizedFireObservation;
+
+export interface HarmonizedFireRecord {
+  id: string;
+  latitude: number;
+  longitude: number;
+  timestamp_utc: string;
+  date: string;
+  time_utc: string;
+  instrument: 'MODIS' | 'VIIRS';
+  satellite: string;
+  source: string;
+  brightness_k?: number | null;
+  frp_mw?: number | null;
+  confidence_normalized: 'low' | 'nominal' | 'high';
+  confidence_original: string;
+  daynight: 'D' | 'N';
+  scan_km?: number | null;
+  track_km?: number | null;
+  footprint_area_km2?: number | null;
+  frp_density_mw_per_km2?: number | null;
+  coincidence_status: 'UNIQUE_MODIS' | 'UNIQUE_VIIRS' | 'COINCIDENT_OVERLAP';
+  matched_sensor_record_ids: string[];
+  region?: string | null;
+  is_demo: boolean;
+  original_record_snapshot?: Record<string, any>;
+}
+
+export interface SensorMetricsComparison {
+  raw_detections: number;
+  total_frp_mw: number;
+  mean_frp_mw: number;
+  max_frp_mw: number;
+  min_frp_mw: number;
+  spatial_resolution_nadir: string;
+  mean_footprint_km2: number;
+  day_detections: number;
+  night_detections: number;
+  high_confidence_count: number;
+}
+
+export interface DailyHarmonizationDataPoint {
+  date: string;
+  modis_detections: number;
+  viirs_detections: number;
+  coincident_detections: number;
+  estimated_distinct_fires: number;
+  modis_frp_total: number;
+  viirs_frp_total: number;
+}
+
+export interface HarmonizationSummaryResponse {
+  total_raw_observations: number;
+  distinct_fire_complexes_count: number;
+  coincident_overlaps_count: number;
+  coincident_modis_hotspots: number;
+  coincident_viirs_hotspots: number;
+  viirs_to_modis_detection_ratio: number;
+  modis_metrics: SensorMetricsComparison;
+  viirs_metrics: SensorMetricsComparison;
+  daily_comparison: DailyHarmonizationDataPoint[];
+  regional_comparison: Record<string, Record<string, any>>;
+  scientific_limitations: string[];
+  harmonized_records: HarmonizedFireRecord[];
+}
 
 export interface FireSummaryStats {
   total_detections: number;
