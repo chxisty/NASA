@@ -225,7 +225,7 @@ export interface GridCellActivity {
   baseline_fire_count: number;
   baseline_mean_frp_mw: number;
   activity_ratio_vs_baseline: number;
-  is_anomaly: bool | boolean;
+  is_anomaly: boolean;
   anomaly_score: number;
   flag_reasons: string[];
   land_use_context: string;
