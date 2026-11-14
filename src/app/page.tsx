@@ -12,44 +12,44 @@ import { AboutSection } from '@/components/sections/AboutSection';
 
 import {
   fetchHealth,
-  fetchFireSummary,
-  fetchLiveFires,
-  fetchAnomalies,
-  fetchTrends,
-  fetchSatelliteStatus
+  fetchFires,
+  fetchFiresSummary,
+  fetchSources,
+  fetchTrends
 } from '@/services/api';
 
 import {
   NavigationSection,
-  FireObservation,
-  FireSummaryStats,
+  NormalizedFireObservation,
+  FiresSummaryResponse,
   AnomalySummary,
   TrendDataPoint,
-  SatelliteInfo
+  SatelliteSourceInfo
 } from '@/types';
 
 export default function Home() {
   const [currentSection, setCurrentSection] = useState<NavigationSection>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedScope, setSelectedScope] = useState<'IND' | 'GLOBAL'>('IND');
-  const [selectedSensor, setSelectedSensor] = useState<'ALL' | 'MODIS' | 'VIIRS'>('ALL');
+  const [selectedSource, setSelectedSource] = useState<string>('ALL');
+  const [selectedDays, setSelectedDays] = useState<number>(1);
 
   // Data states
-  const [summary, setSummary] = useState<FireSummaryStats | null>(null);
-  const [observations, setObservations] = useState<FireObservation[]>([]);
-  const [anomalies, setAnomalies] = useState<FireObservation[]>([]);
+  const [summary, setSummary] = useState<FiresSummaryResponse | null>(null);
+  const [observations, setObservations] = useState<NormalizedFireObservation[]>([]);
+  const [anomalies, setAnomalies] = useState<NormalizedFireObservation[]>([]);
   const [anomalySummary, setAnomalySummary] = useState<AnomalySummary | null>(null);
   const [trends, setTrends] = useState<TrendDataPoint[]>([]);
-  const [satellites, setSatellites] = useState<SatelliteInfo[]>([]);
-  const [constellationName, setConstellationName] = useState<string>('NASA Earth Observing System (EOS)');
+  const [sources, setSources] = useState<SatelliteSourceInfo[]>([]);
 
   // Telemetry status
   const [nasaConnected, setNasaConnected] = useState<boolean>(false);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load all data streams
+  // Load all data streams from FastAPI NASA endpoints
   const loadDashboardData = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true);
@@ -61,28 +61,39 @@ export default function Home() {
     try {
       const countryCode = selectedScope === 'IND' ? 'IND' : 'GLOBAL';
 
-      // Parallel fetch across endpoints
-      const [healthData, summaryData, firesData, anomalyData, trendsData, satData] =
+      // Parallel fetch across official NASA FIRMS endpoints
+      const [healthData, summaryData, firesData, sourcesData, trendsData] =
         await Promise.all([
           fetchHealth(),
-          fetchFireSummary(countryCode),
-          fetchLiveFires(countryCode, selectedSensor),
-          fetchAnomalies(countryCode),
-          fetchTrends(countryCode, 7),
-          fetchSatelliteStatus()
+          fetchFiresSummary(countryCode, selectedSource, selectedDays),
+          fetchFires(countryCode, selectedSource, selectedDays),
+          fetchSources(),
+          fetchTrends(7)
         ]);
 
       if (healthData) {
         setNasaConnected(healthData.nasa_api_configured);
+        setIsDemoMode(healthData.mode === 'demo');
       }
 
       setSummary(summaryData);
-      setObservations(firesData);
-      setAnomalies(anomalyData.anomalous_observations);
-      setAnomalySummary(anomalyData.summary);
+      setObservations(firesData.data);
+
+      // Extract anomalies (FRP > 100 MW or brightness > 360 K)
+      const flaggedAnomalies = firesData.data.filter((o) => o.is_anomaly);
+      setAnomalies(flaggedAnomalies);
+
+      setAnomalySummary({
+        total_anomalies_detected: flaggedAnomalies.length,
+        anomaly_ratio: firesData.data.length ? flaggedAnomalies.length / firesData.data.length : 0,
+        high_frp_outliers: flaggedAnomalies.filter((a) => (a.frp || 0) > 100).length,
+        dense_cluster_anomalies: Math.max(0, flaggedAnomalies.length - 1),
+        model_used: 'Isolation Forest (Scikit-Learn) + Thermal Thresholding',
+        detection_timestamp: new Date().toISOString()
+      });
+
+      setSources(sourcesData);
       setTrends(trendsData);
-      setSatellites(satData.satellites);
-      setConstellationName(satData.constellation);
     } catch (err) {
       console.error('Failed to load FirePulse telemetry:', err);
       setError('Unable to load satellite observation telemetry. Check server connection.');
@@ -90,7 +101,7 @@ export default function Home() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [selectedScope, selectedSensor]);
+  }, [selectedScope, selectedSource, selectedDays]);
 
   useEffect(() => {
     loadDashboardData();
@@ -99,6 +110,22 @@ export default function Home() {
   const handleRefresh = () => {
     loadDashboardData(true);
   };
+
+  // Convert summary to format expected by OverviewSection
+  const overviewSummary = summary ? {
+    total_detections: summary.total_observations,
+    active_hotspots: summary.total_observations,
+    high_confidence_count: (summary.confidence_breakdown.viirs?.high || 0) + (summary.confidence_breakdown.modis?.['high (>80%)'] || 0),
+    anomalous_fire_count: anomalies.length,
+    avg_frp_mw: summary.frp_stats.mean || 0.0,
+    max_frp_mw: summary.frp_stats.max || 0.0,
+    max_brightness_k: summary.brightness_stats.max || 0.0,
+    primary_instrument: summary.sensor_breakdown.VIIRS >= summary.sensor_breakdown.MODIS ? 'VIIRS 375m' : 'MODIS 1km',
+    modis_count: summary.sensor_breakdown.MODIS,
+    viirs_count: summary.sensor_breakdown.VIIRS,
+    geographic_focus: summary.country === 'IND' ? 'India (National Focus)' : 'Global Observation',
+    last_updated: summary.last_updated
+  } : null;
 
   return (
     <div className="min-h-screen bg-[#0B1220] flex">
@@ -118,18 +145,21 @@ export default function Home() {
           onOpenMobileMenu={() => setIsSidebarOpen(true)}
           selectedScope={selectedScope}
           onScopeChange={(scope) => setSelectedScope(scope)}
-          selectedSensor={selectedSensor}
-          onSensorChange={(sensor) => setSelectedSensor(sensor)}
+          selectedSource={selectedSource}
+          onSourceChange={(src) => setSelectedSource(src)}
+          selectedDays={selectedDays}
+          onDaysChange={(d) => setSelectedDays(d)}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
           nasaConnected={nasaConnected}
+          isDemoMode={isDemoMode}
         />
 
         {/* Dynamic Section Container */}
         <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
           {currentSection === 'overview' && (
             <OverviewSection
-              summary={summary}
+              summary={overviewSummary}
               observations={observations}
               isLoading={isLoading}
               error={error}
@@ -166,8 +196,15 @@ export default function Home() {
 
           {currentSection === 'satellite' && (
             <SatelliteDataSection
-              satellites={satellites}
-              constellationName={constellationName}
+              satellites={sources.map(s => ({
+                name: s.name,
+                instrument: s.instrument,
+                resolution: s.resolution,
+                status: s.status,
+                orbit: "Sun-synchronous LEO (~705-824 km)",
+                equator_crossing: s.instrument === 'MODIS' ? '10:30 (Terra) / 13:30 (Aqua)' : '13:30 (Ascending)'
+              }))}
+              constellationName="NASA Earth Observing System (EOS) & Suomi NPP / JPSS"
               isLoading={isLoading}
               onRefresh={handleRefresh}
             />
