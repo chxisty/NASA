@@ -17,7 +17,10 @@ import {
   fetchFiresSummary,
   fetchSources,
   fetchTrends,
-  fetchHarmonizationSummary
+  fetchHarmonizationSummary,
+  fetchMLAnomalies,
+  fetchMLClusters,
+  fetchMLSummary
 } from '@/services/api';
 
 import {
@@ -25,6 +28,9 @@ import {
   NormalizedFireObservation,
   FiresSummaryResponse,
   HarmonizationSummaryResponse,
+  MLAnomaliesResponse,
+  MLClustersResponse,
+  MLSummaryResponse,
   AnomalySummary,
   TrendDataPoint,
   SatelliteSourceInfo
