@@ -495,3 +495,4 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
     </div>
   );
 };
+
