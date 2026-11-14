@@ -79,7 +79,7 @@ export interface SystemHealthResponse {
   app_name: string;
   version: string;
   environment: string;
-  nasa_api_configured: bool;
+  nasa_api_configured: boolean;
   default_country: string;
   supported_instruments: string[];
   supported_satellites: string[];
