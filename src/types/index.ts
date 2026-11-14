@@ -1,6 +1,7 @@
 /**
  * FirePulse Unified Type Definitions
- * Frontend data contracts mirroring backend normalized NASA and Harmonization schemas.
+ * Frontend data contracts mirroring backend normalized NASA, Harmonization,
+ * and Machine Learning (Isolation Forest & K-Means) schemas.
  */
 
 export type NavigationSection = 
@@ -205,6 +206,81 @@ export interface HealthResponse {
     cached_queries: number;
     ttl_seconds: number;
   };
+}
+
+// ==============================================================================
+// Machine Learning Response Models
+// ==============================================================================
+
+export interface GridCellActivity {
+  grid_id: string;
+  center_lat: number;
+  center_lon: number;
+  date: string;
+  fire_count: number;
+  total_frp_mw: number;
+  mean_frp_mw: number;
+  max_frp_mw: number;
+  mean_brightness_k: number;
+  baseline_fire_count: number;
+  baseline_mean_frp_mw: number;
+  activity_ratio_vs_baseline: number;
+  is_anomaly: bool | boolean;
+  anomaly_score: number;
+  flag_reasons: string[];
+  land_use_context: string;
+  observation_count_modis: number;
+  observation_count_viirs: number;
+}
+
+export interface KMeansCluster {
+  cluster_id: number;
+  centroid_lat: number;
+  centroid_lon: number;
+  observation_count: number;
+  total_frp_mw: number;
+  avg_frp_mw: number;
+  max_brightness_k: number;
+  spread_radius_km: number;
+  bounding_box: {
+    min_lat: number;
+    max_lat: number;
+    min_lon: number;
+    max_lon: number;
+  };
+  observation_ids: string[];
+  cluster_label: string;
+}
+
+export interface MLAnomaliesResponse {
+  total_grids_evaluated: number;
+  anomalous_grids_count: number;
+  anomalous_grids: GridCellActivity[];
+  all_grids: GridCellActivity[];
+  model_metadata: Record<string, any>;
+  model_explanation: string;
+  scientific_disclaimer: string;
+}
+
+export interface MLClustersResponse {
+  total_clusters: number;
+  k_used: number;
+  clusters: KMeansCluster[];
+  model_metadata: Record<string, any>;
+  model_explanation: string;
+  scientific_disclaimer: string;
+}
+
+export interface MLSummaryResponse {
+  total_observations_analyzed: number;
+  total_grids_evaluated: number;
+  anomalous_grids_count: number;
+  clusters_count: number;
+  models_used: string[];
+  confidence_assessment: string;
+  limitations: string[];
+  explanations: Record<string, string>;
+  disclaimer: string;
 }
 
 export interface AnomalySummary {
