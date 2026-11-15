@@ -198,6 +198,7 @@ export interface HealthResponse {
   environment: string;
   mode: 'live' | 'demo';
   nasa_api_configured: boolean;
+  message?: string;
   default_country: string;
   supported_sources: string[];
   supported_instruments: string[];
