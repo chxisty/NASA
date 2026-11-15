@@ -203,6 +203,8 @@ export default function Home() {
           {currentSection === 'live-map' && (
             <LiveMapSection
               observations={observations}
+              clustersData={mlClustersData}
+              anomaliesData={mlAnomaliesData}
               isLoading={isLoading}
               onRefresh={handleRefresh}
             />
