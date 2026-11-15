@@ -146,7 +146,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
       {/* Visual Resolution Disparity Diagram & Sensor Side-by-Side Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Visual Pixel Comparison Card */}
-        <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col justify-between">
+        <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -194,7 +194,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
         </div>
 
         {/* Side-by-Side Sensor Specification Table */}
-        <div className="lg:col-span-2 p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+        <div className="lg:col-span-2 p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <Layers className="w-4 h-4 text-emerald-400" />
@@ -271,7 +271,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
       {/* Cross-Sensor Comparison Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Daily Detections: MODIS vs VIIRS vs Distinct */}
-        <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+        <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -310,7 +310,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
         </div>
 
         {/* Daily Fire Radiative Power (FRP) Comparison */}
-        <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+        <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -349,7 +349,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
       </div>
 
       {/* Interactive De-duplication Coincidence Table */}
-      <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+      <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
             <h4 className="text-sm font-semibold text-white">
@@ -471,7 +471,7 @@ export const HarmonizationSection: React.FC<HarmonizationSectionProps> = ({
       </div>
 
       {/* Formal Scientific Caveats & Limitations */}
-      <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+      <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
         <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-orange-400" />
           Formal Scientific Limitations of Cross-Sensor Fusion

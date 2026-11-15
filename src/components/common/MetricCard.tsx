@@ -64,7 +64,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   return (
     <div
-      className={`group relative rounded-xl bg-slate-900/70 border border-slate-800 p-5 transition-all duration-300 ${accentStyles.border} ${accentStyles.glow} backdrop-blur-md`}
+      className={`group relative rounded-xl bg-[#172235] border border-slate-800 p-5 transition-all duration-300 ${accentStyles.border} ${accentStyles.glow} shadow-md shadow-black/20`}
     >
       <div className="flex items-start justify-between">
         <div>

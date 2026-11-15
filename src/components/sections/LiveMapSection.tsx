@@ -201,7 +201,7 @@ export const LiveMapSection: React.FC<LiveMapSectionProps> = ({
   return (
     <div className="space-y-4">
       {/* Upper Control Bar: Region Presets & Quick Export */}
-      <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+      <div className="p-4 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
         {/* Geographic Focus Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mr-1">
@@ -245,7 +245,7 @@ export const LiveMapSection: React.FC<LiveMapSectionProps> = ({
       </div>
 
       {/* Middle Map Control Bar: Filters, Basemap & Layer Toggles */}
-      <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+      <div className="p-4 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
         {/* Left Filter Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
@@ -463,7 +463,7 @@ export const LiveMapSection: React.FC<LiveMapSectionProps> = ({
         </div>
 
         {/* Hotspot & ML Feature Inspector Sidebar */}
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex flex-col justify-between">
+        <div className="p-4 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">

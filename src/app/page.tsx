@@ -191,6 +191,8 @@ export default function Home() {
             <OverviewSection
               summary={overviewSummary}
               observations={observations}
+              trends={trends}
+              anomaliesData={mlAnomaliesData}
               isLoading={isLoading}
               error={error}
               onRefresh={handleRefresh}
@@ -231,6 +233,7 @@ export default function Home() {
           {currentSection === 'historical' && (
             <HistoricalSection
               trends={trends}
+              observations={observations}
               isLoading={isLoading}
               onRefresh={handleRefresh}
             />
@@ -246,6 +249,7 @@ export default function Home() {
                 orbit: "Sun-synchronous LEO (~705-824 km)",
                 equator_crossing: s.instrument === 'MODIS' ? '10:30 (Terra) / 13:30 (Aqua)' : '13:30 (Ascending)'
               }))}
+              observations={observations}
               constellationName="NASA Earth Observing System (EOS) & Suomi NPP / JPSS"
               isLoading={isLoading}
               onRefresh={handleRefresh}

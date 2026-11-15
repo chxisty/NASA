@@ -182,7 +182,7 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
       {/* Tab 1: Isolation Forest Grid Analysis */}
       {activeTab === 'grids' && (
         <div className="space-y-4">
-          <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+          <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div>
                 <h4 className="text-sm font-semibold text-white flex items-center gap-2">
@@ -308,7 +308,7 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
       {/* Tab 2: K-Means Spatial Clusters */}
       {activeTab === 'clusters' && (
         <div className="space-y-4">
-          <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+          <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h4 className="text-sm font-semibold text-white flex items-center gap-2">
@@ -389,7 +389,7 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
           {/* Plain Explanations Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Isolation Forest Card */}
-            <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md space-y-3">
+            <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md space-y-3">
               <div className="flex items-center gap-2 text-orange-400 font-bold text-sm">
                 <BrainCircuit className="w-5 h-5" />
                 How Isolation Forest Works
@@ -408,7 +408,7 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
             </div>
 
             {/* K-Means Card */}
-            <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md space-y-3">
+            <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md space-y-3">
               <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                 <Compass className="w-5 h-5" />
                 How K-Means Clustering Works
@@ -428,7 +428,7 @@ export const AnomalySection: React.FC<AnomalySectionProps> = ({
           </div>
 
           {/* Scientific Limitations & Safety Disclaimers */}
-          <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md space-y-4">
+          <div className="p-5 rounded-xl bg-[#172235] border border-slate-800 backdrop-blur-md space-y-4">
             <h4 className="text-sm font-semibold text-white flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-amber-400" />
               Scientific Limitations & Operational Safeguards
